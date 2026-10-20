@@ -10,12 +10,20 @@ sys.path.insert(0, os.path.dirname(__file__))
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
+# Carrega variáveis de ambiente do arquivo .env (se existir)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+except ImportError:
+    pass  # python-dotenv não instalado — ok em produção com vars de sistema
+
 from flask import Flask, request, jsonify, render_template
 from datetime import date, timedelta
 import database as db
 import nlp
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-insecure-key-change-in-production')
 
 # ── Inicializa banco na primeira execução ──────────────────────────
 db.criar_tabelas()
