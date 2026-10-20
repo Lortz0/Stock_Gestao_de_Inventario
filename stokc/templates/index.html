@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Stokc — Sistema de Gestão de Inventário Conversacional para microempreendedores"/>
+  <title>Stokc — Gestão de Inventário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════  SIDEBAR  ═══════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">S</div>
+    <div class="logo-text">
+      <span class="logo-name">Stokc</span>
+      <span class="logo-tagline">Inventário Inteligente</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="showPanel('dashboard')">
+      <span class="nav-icon">⊞</span> Dashboard
+    </button>
+    <button class="nav-btn" id="nav-products" onclick="showPanel('products')">
+      <span class="nav-icon">📦</span> Produtos
+    </button>
+    <button class="nav-btn" id="nav-history" onclick="showPanel('history')">
+      <span class="nav-icon">📋</span> Histórico
+    </button>
+    <button class="nav-btn" id="nav-reports" onclick="showPanel('reports')">
+      <span class="nav-icon">📊</span> Relatórios
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <span>Sistema online</span>
+  </div>
+</aside>
+
+<!-- ═══════════════════════  MAIN CONTENT  ══════════════════════ -->
+<main class="main-content">
+
+  <!-- ── HEADER ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSidebar()" id="menu-btn">☰</button>
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="refresh-btn" onclick="loadDashboard()" title="Atualizar">↻</div>
+      <div class="date-badge" id="date-badge"></div>
+    </div>
+  </header>
+
+  <!-- ─────────────────  PANEL: DASHBOARD  ─────────────────────── -->
+  <section class="panel active" id="panel-dashboard">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card green" id="kpi-receita">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Receita Hoje</span>
+          <span class="kpi-value" id="kpi-receita-val">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="kpi-card cyan" id="kpi-lucro">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Lucro Hoje</span>
+          <span class="kpi-value" id="kpi-lucro-val">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="kpi-card blue" id="kpi-estoque">
+        <div class="kpi-icon">🏪</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Valor em Estoque</span>
+          <span class="kpi-value" id="kpi-estoque-val">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="kpi-card orange" id="kpi-vendas">
+        <div class="kpi-icon">🛍</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Vendas Hoje</span>
+          <span class="kpi-value" id="kpi-vendas-val">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas de estoque baixo -->
+    <div class="alert-bar" id="alert-bar" style="display:none">
+      <span class="alert-icon">⚠️</span>
+      <span id="alert-text">Estoque baixo:</span>
+    </div>
+
+    <!-- Tabela de produtos no dashboard -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Estoque Atual</h2>
+        <span class="badge" id="dash-total-badge">0 produtos</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="dash-products-table">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Preço Custo</th>
+              <th>Preço Venda</th>
+              <th>Valor Total</th>
+              <th>Nível</th>
+            </tr>
+          </thead>
+          <tbody id="dash-products-body">
+            <tr><td colspan="6" class="empty-row">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────  PANEL: PRODUTOS  ─────────────────────── -->
+  <section class="panel" id="panel-products">
+    <div class="card">
+      <div class="card-header">
+        <h2>Todos os Produtos</h2>
+        <input class="search-input" id="product-search" type="text" placeholder="🔍 Buscar produto..." oninput="filterProducts()"/>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="full-products-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produto</th>
+              <th>Unidade</th>
+              <th>Quantidade</th>
+              <th>Preço de Custo</th>
+              <th>Preço de Venda</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="full-products-body">
+            <tr><td colspan="7" class="empty-row">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────  PANEL: HISTÓRICO  ────────────────────── -->
+  <section class="panel" id="panel-history">
+    <div class="card">
+      <div class="card-header">
+        <h2>Histórico de Movimentações</h2>
+        <span class="badge" id="history-count-badge">últimas 50</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="history-table">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Tipo</th>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Preço Unit.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="6" class="empty-row">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────  PANEL: RELATÓRIOS  ───────────────────── -->
+  <section class="panel" id="panel-reports">
+    <div class="report-period-btns">
+      <button class="period-btn active" onclick="loadReport('hoje', this)">Hoje</button>
+      <button class="period-btn" onclick="loadReport('semana', this)">7 Dias</button>
+      <button class="period-btn" onclick="loadReport('geral', this)">Geral</button>
+    </div>
+
+    <div class="kpi-grid report-kpis">
+      <div class="kpi-card green">
+        <div class="kpi-icon">💵</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Receita</span>
+          <span class="kpi-value" id="rep-receita">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-icon">📉</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Custo</span>
+          <span class="kpi-value" id="rep-custo">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Lucro Bruto</span>
+          <span class="kpi-value" id="rep-lucro">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.5rem">
+      <div class="card-header"><h2>Detalhamento</h2></div>
+      <div class="report-detail" id="report-detail">
+        <p class="empty-state">Selecione um período acima.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════  CHAT PANEL  ════════════════════════ -->
+<div class="chat-container" id="chat-container">
+  <div class="chat-header" onclick="toggleChat()">
+    <div class="chat-header-left">
+      <div class="chat-avatar">S</div>
+      <div>
+        <div class="chat-title">Stokc Assistant</div>
+        <div class="chat-subtitle" id="chat-subtitle">Online — fale comigo!</div>
+      </div>
+    </div>
+    <button class="chat-toggle-btn" id="chat-toggle-icon">▼</button>
+  </div>
+
+  <div class="chat-body" id="chat-body">
+    <div class="chat-messages" id="chat-messages">
+      <!-- mensagem de boas-vindas será inserida via JS -->
+    </div>
+
+    <div class="chat-suggestions" id="chat-suggestions">
+      <button class="suggestion-chip" onclick="sendSuggestion('relatório')">📊 Relatório</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('listar produtos')">📋 Produtos</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('ajuda')">❓ Ajuda</button>
+    </div>
+
+    <form class="chat-form" onsubmit="sendMessage(event)">
+      <input
+        class="chat-input"
+        id="chat-input"
+        type="text"
+        placeholder="Ex: vendi 5 arroz..."
+        autocomplete="off"
+      />
+      <button class="chat-send-btn" type="submit" id="chat-send-btn">➤</button>
+    </form>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
